@@ -1,4 +1,5 @@
-import { getProjectToken, getServiceEndpoint } from "@/lib/session";
+import { getProjectToken } from "@/lib/session";
+import { getServiceEndpoint } from "@/lib/keystone";
 
 const statuses: { [key: string]: string } = {
   creating: "The volume is being created.",

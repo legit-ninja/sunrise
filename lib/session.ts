@@ -46,31 +46,3 @@ export async function getProjectToken(): Promise<string> {
   return projectToken;
 }
 
-export async function getServiceEndpoint(
-  service: string,
-  serviceInterface: string,
-): Promise<Endpoint> {
-  const projectData = await session().get("projectData");
-  const catalog = projectData.catalog;
-  //console.log("getServiceEndpoint: " + catalog);
-  const endpoints = catalog.find(
-    (item: { name: string }) => item.name == service,
-  );
-  const endpoint = endpoints.endpoints.find(
-    (endpoint: { interface: string }) => endpoint.interface == serviceInterface,
-  );
-
-  return endpoint;
-}
-
-export async function getServiceEndpoints(services: string[], serviceInterface: string): Promise<Endpoint[]> {
-  const projectData = await session().get("projectData");
-  const catalog = projectData.catalog;
-  //console.log("getServiceEndpoints: " + catalog);  
-  const endpoints = catalog
-    .filter((item: { name: string }) => services.includes(item.name))
-    .map((item: { endpoints: Endpoint[] }) => item.endpoints)
-    .flat() // Flatten the array of arrays into a single array
-    .filter((endpoint: { interface: string }) => endpoint.interface === serviceInterface);
-  return endpoints;
-}

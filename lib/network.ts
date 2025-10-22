@@ -1,4 +1,5 @@
-import { getProjectToken, getServiceEndpoint, getServiceEndpoints } from "@/lib/session";
+import { getProjectToken } from "@/lib/session";
+import { getServiceEndpoint, getServiceEndpoints } from "@/lib/keystone";
 import { log } from "console";
 import exp from "constants";
 import { get } from "http";
