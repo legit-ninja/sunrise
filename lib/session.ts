@@ -28,7 +28,6 @@ export type SunriseSession = {
   projects?: Project[];
   selectedProject?: Project;
   projectToken?: string;
-  projectData?: TokenData;
   userName?: string;
   redirect_to?: string;
 };
@@ -44,5 +43,73 @@ export async function getProjectToken(): Promise<string> {
   const projectToken = await session().get("projectToken");
 
   return projectToken;
+}
+
+export async function getServiceEndpoint(
+  service: string,
+  serviceInterface: string = "public",
+): Promise<Endpoint | null> {
+  const projectToken = await getProjectToken();
+  if (!projectToken) return null;
+
+  try {
+    // Fetch the service catalog from Keystone
+    const response = await fetch(`${process.env.KEYSTONE_API}/v3/auth/catalog`, {
+      headers: {
+        "X-Auth-Token": projectToken,
+      },
+    });
+
+    if (!response.ok) return null;
+
+    const catalog = await response.json();
+
+    const serviceEntry = catalog.catalog.find(
+      (item: { name: string }) => item.name === service,
+    );
+
+    if (!serviceEntry) return null;
+
+    const endpoint = serviceEntry.endpoints.find(
+      (endpoint: { interface: string }) => endpoint.interface === serviceInterface,
+    );
+
+    return endpoint || null;
+  } catch (error) {
+    console.error("Failed to get service endpoint:", error);
+    return null;
+  }
+}
+
+export async function getServiceEndpoints(
+  services: string[],
+  serviceInterface: string = "public",
+): Promise<Endpoint[]> {
+  const projectToken = await getProjectToken();
+  if (!projectToken) return [];
+
+  try {
+    // Fetch the service catalog from Keystone
+    const response = await fetch(`${process.env.KEYSTONE_API}/v3/auth/catalog`, {
+      headers: {
+        "X-Auth-Token": projectToken,
+      },
+    });
+
+    if (!response.ok) return [];
+
+    const catalog = await response.json();
+
+    const endpoints = catalog.catalog
+      .filter((item: { name: string }) => services.includes(item.name))
+      .map((item: { endpoints: Endpoint[] }) => item.endpoints)
+      .flat()
+      .filter((endpoint: { interface: string }) => endpoint.interface === serviceInterface);
+
+    return endpoints;
+  } catch (error) {
+    console.error("Failed to get service endpoints:", error);
+    return [];
+  }
 }
 

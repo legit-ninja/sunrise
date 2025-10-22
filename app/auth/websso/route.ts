@@ -21,7 +21,6 @@ export async function POST(request: Request) {
       projects: projects,
       selectedProject: selectedProject,
       projectToken: projectToken,
-      projectData: projectData,
       userName: projectData.user.name,
     });
   } else {
