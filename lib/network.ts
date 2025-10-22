@@ -102,15 +102,19 @@ export interface Network {
   project_id: string;
 }
 
-export async function getNetworkEndpoint() : Promise<Endpoint> {
+export async function getNetworkEndpoint() : Promise<Endpoint | null> {
   const services = ['network', 'neutron'];
   const endpoints = await getServiceEndpoints(services, "public");
-  return endpoints[0];
+  return endpoints.length > 0 ? endpoints[0] : null;
 }
 
 export async function listSecurityGroups() {
   const token = await getProjectToken();
   const endpoint = await getNetworkEndpoint();
+
+  if (!endpoint) {
+    throw new Error("Network endpoint not found");
+  }
 
   const securityGroupsResponse = await fetch(
     `${endpoint.url}/v2.0/security-groups`,
@@ -131,7 +135,11 @@ export async function listSecurityGroups() {
 export async function getSecurityGroup(id: string) {
   const token = await getProjectToken();
   const endpoint = await getNetworkEndpoint();
-  
+
+  if (!endpoint) {
+    throw new Error("Network endpoint not found");
+  }
+
   const securityGroupResponse = await fetch(
     `${endpoint.url}/v2.0/security-groups/${id}`,
     {
@@ -153,6 +161,10 @@ export async function listSecurityGroupRules() {
   const token = await getProjectToken();
   const endpoint = await getNetworkEndpoint();
 
+  if (!endpoint) {
+    throw new Error("Network endpoint not found");
+  }
+
   const securityGroupRules = await fetch(
     `${endpoint.url}/v2.0/security-group-rules`,
     {
@@ -172,6 +184,10 @@ export async function listSecurityGroupRules() {
 export async function getSecurityGroupRule(id: string) {
   const token = await getProjectToken();
   const endpoint = await getNetworkEndpoint();
+
+  if (!endpoint) {
+    throw new Error("Network endpoint not found");
+  }
 
   const securityGroupRuleResponse = await fetch(
     `${endpoint.url}/v2.0/security-group-rules/${id}`,
@@ -195,6 +211,10 @@ export async function listPorts() {
   const token = await getProjectToken();
   const endpoint = await getNetworkEndpoint();
 
+  if (!endpoint) {
+    throw new Error("Network endpoint not found");
+  }
+
   const portsResponse = await fetch(`${endpoint.url}/v2.0/ports`, {
     method: "GET",
     headers: {
@@ -212,6 +232,10 @@ export async function listPorts() {
 export async function getPortById(id: string) {
   const token = await getProjectToken();
   const endpoint = await getNetworkEndpoint();
+
+  if (!endpoint) {
+    throw new Error("Network endpoint not found");
+  }
 
   const portResponse = await fetch(`${endpoint.url}/v2.0/ports/${id}`, {
     method: "GET",
@@ -241,6 +265,10 @@ export async function listNetworks() {
   const token = await getProjectToken();
   const endpoint = await getNetworkEndpoint();
 
+  if (!endpoint) {
+    throw new Error("Network endpoint not found");
+  }
+
   const networksResponse = await fetch(`${endpoint.url}/v2.0/networks`, {
     method: "GET",
     headers: {
@@ -258,6 +286,10 @@ export async function listNetworks() {
 export async function getNetwork(id: string) {
   const token = await getProjectToken();
   const endpoint = await getNetworkEndpoint();
+
+  if (!endpoint) {
+    throw new Error("Network endpoint not found");
+  }
 
   const networkResponse = await fetch(`${endpoint.url}/v2.0/networks/${id}`, {
     method: "GET",

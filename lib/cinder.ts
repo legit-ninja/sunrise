@@ -108,6 +108,11 @@ export async function listVolumes(
 ): Promise<Volume[]> {
   const token = await getProjectToken();
   const endpoint = await getServiceEndpoint("cinderv3", "public");
+
+  if (!endpoint) {
+    throw new Error("Cinder endpoint not found");
+  }
+
   const params = new URLSearchParams(options as {});
 
   const volumesResponse = await fetch(
@@ -129,6 +134,11 @@ export async function listVolumes(
 export async function getVolume(id: string): Promise<Volume> {
   const token = await getProjectToken();
   const endpoint = await getServiceEndpoint("cinderv3", "public");
+
+  if (!endpoint) {
+    throw new Error("Cinder endpoint not found");
+  }
+
   const volumesResponse = await fetch(`${endpoint.url}/volumes/${id}`, {
     method: "GET",
     headers: {

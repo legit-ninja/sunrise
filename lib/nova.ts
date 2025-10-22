@@ -129,6 +129,11 @@ export interface ListFlavorsOptions {
 export async function listServers(options?: ListServersOptions) {
   const token = await getProjectToken();
   const endpoint = await getServiceEndpoint("nova", "public");
+
+  if (!endpoint) {
+    throw new Error("Nova endpoint not found");
+  }
+
   const params = new URLSearchParams(options as {});
   const computeResponse = await fetch(
     `${endpoint.url}/servers/detail?${params}`,
@@ -148,6 +153,11 @@ export async function listServers(options?: ListServersOptions) {
 export async function getInstance(id: string): Promise<Server> {
   const token = await getProjectToken();
   const endpoint = await getServiceEndpoint("nova", "public");
+
+  if (!endpoint) {
+    throw new Error("Nova endpoint not found");
+  }
+
   const computeResponse = await fetch(`${endpoint.url}/servers/${id}`, {
     method: "GET",
     headers: {
@@ -164,6 +174,11 @@ export async function getInstance(id: string): Promise<Server> {
 export async function listFlavors(options?: ListFlavorsOptions) {
   const token = await getProjectToken();
   const endpoint = await getServiceEndpoint("nova", "public");
+
+  if (!endpoint) {
+    throw new Error("Nova endpoint not found");
+  }
+
   const computeResponse = await fetch(`${endpoint.url}/flavors/detail`, {
     method: "GET",
     headers: {
@@ -180,6 +195,11 @@ export async function listFlavors(options?: ListFlavorsOptions) {
 export async function getFlavor(id: string) {
   const token = await getProjectToken();
   const endpoint = await getServiceEndpoint("nova", "public");
+
+  if (!endpoint) {
+    throw new Error("Nova endpoint not found");
+  }
+
   const computeResponse = await fetch(`${endpoint.url}/flavors/${id}`, {
     method: "GET",
     headers: {
@@ -197,6 +217,11 @@ export async function getFlavor(id: string) {
 export async function getPortInterfaces(id: string){
   const token = await getProjectToken();
   const endpoint = await getServiceEndpoint("nova", "public");
+
+  if (!endpoint) {
+    throw new Error("Nova endpoint not found");
+  }
+
   const computeResponse = await fetch(`${endpoint.url}/servers/${id}/os-interface`, {
     method: "GET",
     headers: {

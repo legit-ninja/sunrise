@@ -10,6 +10,10 @@ export async function listImages() {
   const token = await getProjectToken();
   const endpoint = await getServiceEndpoint("glance", "public");
 
+  if (!endpoint) {
+    throw new Error("Glance endpoint not found");
+  }
+
   // @TODO query params for ids
   const imageResponse = await fetch(`${endpoint.url}/v2/images`, {
     method: "GET",
@@ -27,6 +31,10 @@ export async function listImages() {
 export async function getImage(id: string) {
   const token = await getProjectToken();
   const endpoint = await getServiceEndpoint("glance", "public");
+
+  if (!endpoint) {
+    throw new Error("Glance endpoint not found");
+  }
 
   // @TODO query params for ids
   const imageResponse = await fetch(`${endpoint.url}/v2/images/${id}`, {
