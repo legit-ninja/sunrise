@@ -33,12 +33,17 @@ export type ComputeQuotas = {
   instances: QuotaUsage;
   cores: QuotaUsage;
   ram: QuotaUsage;
+  key_pairs?: QuotaUsage;
+  server_groups?: QuotaUsage;
+  server_group_members?: QuotaUsage;
 };
 
 export type VolumeQuotas = {
   volumes: QuotaUsage;
   gigabytes: QuotaUsage;
   snapshots: QuotaUsage;
+  backups?: QuotaUsage;
+  backup_gigabytes?: QuotaUsage;
 };
 
 export type NetworkQuotas = {
@@ -126,28 +131,51 @@ export async function getComputeQuotas(projectId?: string): Promise<ComputeQuota
   const data = await response.json();
   const quotaSet = data.quota_set;
 
+  console.log("Compute quota API response:", data);
+  console.log("Quota set:", quotaSet);
+
   return {
     instances: {
-      used: quotaSet.instances?.in_use || 0,
-      limit: quotaSet.instances?.limit || 0,
-      reserved: quotaSet.instances?.reserved || 0,
+      used: parseInt(quotaSet.instances?.in_use) || 0,
+      limit: parseInt(quotaSet.instances?.limit) || -1,
+      reserved: parseInt(quotaSet.instances?.reserved) || 0,
     },
     cores: {
-      used: quotaSet.cores?.in_use || 0,
-      limit: quotaSet.cores?.limit || 0,
-      reserved: quotaSet.cores?.reserved || 0,
+      used: parseInt(quotaSet.cores?.in_use) || 0,
+      limit: parseInt(quotaSet.cores?.limit) || -1,
+      reserved: parseInt(quotaSet.cores?.reserved) || 0,
     },
     ram: {
-      used: Math.round((quotaSet.ram?.in_use || 0) / 1024), // Convert MB to GB
-      limit: Math.round((quotaSet.ram?.limit || 0) / 1024), // Convert MB to GB
-      reserved: Math.round((quotaSet.ram?.reserved || 0) / 1024), // Convert MB to GB
+      used: Math.round((parseInt(quotaSet.ram?.in_use) || 0) / 1024), // Convert MB to GB
+      limit: Math.round((parseInt(quotaSet.ram?.limit) || 0) / 1024), // Convert MB to GB
+      reserved: Math.round((parseInt(quotaSet.ram?.reserved) || 0) / 1024), // Convert MB to GB
+    },
+    key_pairs: {
+      used: parseInt(quotaSet.key_pairs?.in_use) || 0,
+      limit: parseInt(quotaSet.key_pairs?.limit) || -1,
+      reserved: parseInt(quotaSet.key_pairs?.reserved) || 0,
+    },
+    server_groups: {
+      used: parseInt(quotaSet.server_groups?.in_use) || 0,
+      limit: parseInt(quotaSet.server_groups?.limit) || -1,
+      reserved: parseInt(quotaSet.server_groups?.reserved) || 0,
+    },
+    server_group_members: {
+      used: parseInt(quotaSet.server_group_members?.in_use) || 0,
+      limit: parseInt(quotaSet.server_group_members?.limit) || -1,
+      reserved: parseInt(quotaSet.server_group_members?.reserved) || 0,
     },
   };
 }
 
 export async function getVolumeQuotas(projectId?: string): Promise<VolumeQuotas> {
   const token = await session().get("projectToken");
-  const cinderEndpoint = await getServiceEndpoint("volumev3", "public");
+  let cinderEndpoint;
+  try {
+    cinderEndpoint = await getServiceEndpoint("volumev3", "public");
+  } catch {
+    cinderEndpoint = await getServiceEndpoint("volume", "public");
+  }
 
   if (!cinderEndpoint) {
     throw new Error("Cinder endpoint not found");
@@ -173,19 +201,29 @@ export async function getVolumeQuotas(projectId?: string): Promise<VolumeQuotas>
 
   return {
     volumes: {
-      used: quotaSet.volumes?.in_use || 0,
-      limit: quotaSet.volumes?.limit || 0,
-      reserved: quotaSet.volumes?.reserved || 0,
+      used: parseInt(quotaSet.volumes?.in_use) || 0,
+      limit: parseInt(quotaSet.volumes?.limit) || -1,
+      reserved: parseInt(quotaSet.volumes?.reserved) || 0,
     },
     gigabytes: {
-      used: quotaSet.gigabytes?.in_use || 0,
-      limit: quotaSet.gigabytes?.limit || 0,
-      reserved: quotaSet.gigabytes?.reserved || 0,
+      used: parseInt(quotaSet.gigabytes?.in_use) || 0,
+      limit: parseInt(quotaSet.gigabytes?.limit) || -1,
+      reserved: parseInt(quotaSet.gigabytes?.reserved) || 0,
     },
     snapshots: {
-      used: quotaSet.snapshots?.in_use || 0,
-      limit: quotaSet.snapshots?.limit || 0,
-      reserved: quotaSet.snapshots?.reserved || 0,
+      used: parseInt(quotaSet.snapshots?.in_use) || 0,
+      limit: parseInt(quotaSet.snapshots?.limit) || -1,
+      reserved: parseInt(quotaSet.snapshots?.reserved) || 0,
+    },
+    backups: {
+      used: parseInt(quotaSet.backups?.in_use) || 0,
+      limit: parseInt(quotaSet.backups?.limit) || -1,
+      reserved: parseInt(quotaSet.backups?.reserved) || 0,
+    },
+    backup_gigabytes: {
+      used: parseInt(quotaSet.backup_gigabytes?.in_use) || 0,
+      limit: parseInt(quotaSet.backup_gigabytes?.limit) || -1,
+      reserved: parseInt(quotaSet.backup_gigabytes?.reserved) || 0,
     },
   };
 }
@@ -218,32 +256,32 @@ export async function getNetworkQuotas(projectId?: string): Promise<NetworkQuota
 
   return {
     networks: {
-      used: quota.networks?.used || 0,
-      limit: quota.networks?.limit || 0,
+      used: parseInt(quota.networks?.used) || 0,
+      limit: parseInt(quota.networks?.limit) || -1,
     },
     subnets: {
-      used: quota.subnets?.used || 0,
-      limit: quota.subnets?.limit || 0,
+      used: parseInt(quota.subnets?.used) || 0,
+      limit: parseInt(quota.subnets?.limit) || -1,
     },
     ports: {
-      used: quota.ports?.used || 0,
-      limit: quota.ports?.limit || 0,
+      used: parseInt(quota.ports?.used) || 0,
+      limit: parseInt(quota.ports?.limit) || -1,
     },
     routers: {
-      used: quota.routers?.used || 0,
-      limit: quota.routers?.limit || 0,
+      used: parseInt(quota.routers?.used) || 0,
+      limit: parseInt(quota.routers?.limit) || -1,
     },
     floatingips: {
-      used: quota.floatingips?.used || 0,
-      limit: quota.floatingips?.limit || 0,
+      used: parseInt(quota.floatingips?.used) || 0,
+      limit: parseInt(quota.floatingips?.limit) || -1,
     },
     security_groups: {
-      used: quota.security_groups?.used || 0,
-      limit: quota.security_groups?.limit || 0,
+      used: parseInt(quota.security_groups?.used) || 0,
+      limit: parseInt(quota.security_groups?.limit) || -1,
     },
     security_group_rules: {
-      used: quota.security_group_rules?.used || 0,
-      limit: quota.security_group_rules?.limit || 0,
+      used: parseInt(quota.security_group_rules?.used) || 0,
+      limit: parseInt(quota.security_group_rules?.limit) || -1,
     },
   };
 }
@@ -253,14 +291,28 @@ export async function getServiceEndpoint(
   serviceInterface: string,
 ): Promise<Endpoint> {
   const projectData = await session().get("projectData");
+
+  if (!projectData || !projectData.catalog) {
+    throw new Error("No project data or catalog found");
+  }
+
   const catalog = projectData.catalog;
-  //console.log("getServiceEndpoint: " + catalog);
-  const endpoints = catalog.find(
-    (item: { name: string }) => item.name == service,
+
+  const serviceEntry = catalog.find(
+    (item: { type: string }) => item.type == service,
   );
-  const endpoint = endpoints.endpoints.find(
+
+  if (!serviceEntry) {
+    throw new Error(`Service ${service} not found in catalog`);
+  }
+
+  const endpoint = serviceEntry.endpoints.find(
     (endpoint: { interface: string }) => endpoint.interface == serviceInterface,
   );
+
+  if (!endpoint) {
+    throw new Error(`Endpoint with interface ${serviceInterface} not found for service ${service}`);
+  }
 
   return endpoint;
 }
@@ -270,7 +322,7 @@ export async function getServiceEndpoints(services: string[], serviceInterface: 
   const catalog = projectData.catalog;
   //console.log("getServiceEndpoints: " + catalog);
   const endpoints = catalog
-    .filter((item: { name: string }) => services.includes(item.name))
+    .filter((item: { type: string }) => services.includes(item.type))
     .map((item: { endpoints: Endpoint[] }) => item.endpoints)
     .flat() // Flatten the array of arrays into a single array
     .filter((endpoint: { interface: string }) => endpoint.interface === serviceInterface);

@@ -29,6 +29,7 @@ export type SunriseSession = {
   selectedProject?: Project;
   projectToken?: string;
   userName?: string;
+  projectData?: TokenData;
   redirect_to?: string;
 };
 
@@ -65,7 +66,7 @@ export async function getServiceEndpoint(
     const catalog = await response.json();
 
     const serviceEntry = catalog.catalog.find(
-      (item: { name: string }) => item.name === service,
+      (item: { type: string }) => item.type === service,
     );
 
     if (!serviceEntry) return null;
@@ -101,7 +102,7 @@ export async function getServiceEndpoints(
     const catalog = await response.json();
 
     const endpoints = catalog.catalog
-      .filter((item: { name: string }) => services.includes(item.name))
+      .filter((item: { type: string }) => services.includes(item.type))
       .map((item: { endpoints: Endpoint[] }) => item.endpoints)
       .flat()
       .filter((endpoint: { interface: string }) => endpoint.interface === serviceInterface);

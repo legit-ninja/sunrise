@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ProgressCard from "@/components/ProgressCard";
-import { getComputeQuotas, getVolumeQuotas, getNetworkQuotas, ComputeQuotas, VolumeQuotas, NetworkQuotas } from "@/lib/keystone";
+import { ComputeQuotas, VolumeQuotas, NetworkQuotas } from "@/lib/keystone";
 
 type QuotaItem = {
   label: string;
@@ -27,36 +27,62 @@ export default function ProjectStats() {
         setLoading(true);
         setError(null);
 
-        // Fetch quotas from all services in parallel
-        const [computeQuotas, volumeQuotas, networkQuotas] = await Promise.all([
-          getComputeQuotas().catch(() => null),
-          getVolumeQuotas().catch(() => null),
-          getNetworkQuotas().catch(() => null),
-        ]);
+        // Fetch quotas from API route
+        const response = await fetch("/api/quotas");
+        if (!response.ok) {
+          throw new Error(`Failed to fetch quotas: ${response.statusText}`);
+        }
+
+        const quotaData = await response.json();
+
+        const computeQuotas = quotaData.compute;
+        const volumeQuotas = quotaData.volume;
+        const networkQuotas = quotaData.network;
 
         const data: QuotaGroup[] = [];
 
         // Compute quotas
         if (computeQuotas) {
+          const computeItems = [
+            { label: "Instances", used: computeQuotas.instances.used, limit: computeQuotas.instances.limit, units: "" },
+            { label: "VCPUs", used: computeQuotas.cores.used, limit: computeQuotas.cores.limit, units: "" },
+            { label: "RAM", used: computeQuotas.ram.used, limit: computeQuotas.ram.limit, units: "GB" },
+          ];
+
+          if (computeQuotas.key_pairs) {
+            computeItems.push({ label: "Key Pairs", used: computeQuotas.key_pairs.used, limit: computeQuotas.key_pairs.limit, units: "" });
+          }
+          if (computeQuotas.server_groups) {
+            computeItems.push({ label: "Server Groups", used: computeQuotas.server_groups.used, limit: computeQuotas.server_groups.limit, units: "" });
+          }
+          if (computeQuotas.server_group_members) {
+            computeItems.push({ label: "Server Group Members", used: computeQuotas.server_group_members.used, limit: computeQuotas.server_group_members.limit, units: "" });
+          }
+
           data.push({
             name: "Compute",
-            items: [
-              { label: "Instances", used: computeQuotas.instances.used, limit: computeQuotas.instances.limit, units: "" },
-              { label: "VCPUs", used: computeQuotas.cores.used, limit: computeQuotas.cores.limit, units: "" },
-              { label: "RAM", used: computeQuotas.ram.used, limit: computeQuotas.ram.limit, units: "GB" },
-            ],
+            items: computeItems,
           });
         }
 
         // Volume quotas
         if (volumeQuotas) {
+          const volumeItems = [
+            { label: "Volumes", used: volumeQuotas.volumes.used, limit: volumeQuotas.volumes.limit, units: "" },
+            { label: "Volume Snapshots", used: volumeQuotas.snapshots.used, limit: volumeQuotas.snapshots.limit, units: "" },
+            { label: "Volume Storage", used: volumeQuotas.gigabytes.used, limit: volumeQuotas.gigabytes.limit, units: "GB" },
+          ];
+
+          if (volumeQuotas.backups) {
+            volumeItems.push({ label: "Volume Backups", used: volumeQuotas.backups.used, limit: volumeQuotas.backups.limit, units: "" });
+          }
+          if (volumeQuotas.backup_gigabytes) {
+            volumeItems.push({ label: "Backup Storage", used: volumeQuotas.backup_gigabytes.used, limit: volumeQuotas.backup_gigabytes.limit, units: "GB" });
+          }
+
           data.push({
             name: "Volume",
-            items: [
-              { label: "Volumes", used: volumeQuotas.volumes.used, limit: volumeQuotas.volumes.limit, units: "" },
-              { label: "Volume Snapshots", used: volumeQuotas.snapshots.used, limit: volumeQuotas.snapshots.limit, units: "" },
-              { label: "Volume Storage", used: volumeQuotas.gigabytes.used, limit: volumeQuotas.gigabytes.limit, units: "GB" },
-            ],
+            items: volumeItems,
           });
         }
 
@@ -69,6 +95,7 @@ export default function ProjectStats() {
               { label: "Security Groups", used: networkQuotas.security_groups.used, limit: networkQuotas.security_groups.limit, units: "" },
               { label: "Security Group Rules", used: networkQuotas.security_group_rules.used, limit: networkQuotas.security_group_rules.limit, units: "" },
               { label: "Networks", used: networkQuotas.networks.used, limit: networkQuotas.networks.limit, units: "" },
+              { label: "Subnets", used: networkQuotas.subnets.used, limit: networkQuotas.subnets.limit, units: "" },
               { label: "Ports", used: networkQuotas.ports.used, limit: networkQuotas.ports.limit, units: "" },
               { label: "Routers", used: networkQuotas.routers.used, limit: networkQuotas.routers.limit, units: "" },
             ],
