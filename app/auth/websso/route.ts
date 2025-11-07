@@ -110,6 +110,7 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const token = formData.get("token");
 
+<<<<<<< HEAD
   if (typeof token !== "string" || token.length === 0) {
     console.error("Missing token in WebSSO response");
     session.keystone_unscoped_token = undefined;
