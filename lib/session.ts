@@ -12,4 +12,3 @@ export type SunriseSession = {
 export async function getSession(): Promise<IronSession<SunriseSession>> {
   return await getIronSession<SunriseSession>(await cookies(), { cookieName: "sunrise", password: process.env.SESSION_SECRET as string });
 }
-
