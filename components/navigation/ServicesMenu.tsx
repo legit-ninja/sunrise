@@ -1,8 +1,24 @@
 'use client';
 
-import { LayoutGrid, Server, Container, Database, Globe, FolderTree, Layers } from "lucide-react";
-import Link from "next/link";
-import { useMediaQuery } from "usehooks-ts";
+import {
+  LayoutGrid,
+  Server,
+  Container,
+  Database,
+  Globe,
+  FolderTree,
+  Layers,
+  Network,
+  Shield,
+  Gauge,
+  HardDrive,
+  Image,
+  Key,
+  Box,
+  Cpu,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useMediaQuery } from 'usehooks-ts';
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -10,57 +26,45 @@ import {
   NavigationMenuTrigger,
   NavigationMenuList,
   NavigationMenuLink,
-} from "@/components/ui/navigation-menu";
+} from '@/components/ui/navigation-menu';
+import type { NavServiceIcon, NavServiceItem } from '@/types/openstack/nav';
 
-const services: { title: string; href: string; description: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  {
-    title: "Compute",
-    href: "/compute/instances",
-    description: "Virtual machines, networks, and storage volumes.",
-    icon: Server,
-  },
-  {
-    title: "Kubernetes",
-    href: "/kubernetes",
-    description: "Deploy and manage orchestration clusters.",
-    icon: Container,
-  },
-  {
-    title: "Object Storage",
-    href: "/object-storage",
-    description: "S3-compatible storage for files and objects.",
-    icon: Database,
-  },
-  {
-    title: "Orchestration",
-    href: "/orchestration",
-    description: "Template-based infrastructure deployment.",
-    icon: Layers,
-  },
-  {
-    title: "DNS",
-    href: "/dns",
-    description: "Manage DNS zones and domain records.",
-    icon: Globe,
-  },
-  {
-    title: "File System",
-    href: "/file-system",
-    description: "Shared file system storage and shares.",
-    icon: FolderTree,
-  },
-];
+export type ServicesMenuItem = NavServiceItem;
+
+const ICONS: Record<
+  NavServiceIcon,
+  React.ComponentType<{ className?: string }>
+> = {
+  server: Server,
+  container: Container,
+  database: Database,
+  layers: Layers,
+  globe: Globe,
+  'folder-tree': FolderTree,
+  network: Network,
+  shield: Shield,
+  gauge: Gauge,
+  'hard-drive': HardDrive,
+  image: Image,
+  key: Key,
+  box: Box,
+  cpu: Cpu,
+};
 
 function ServiceItem({
   title,
   children,
   href,
-  icon: Icon,
+  icon,
+  placeholder,
   ...props
-}: React.ComponentPropsWithoutRef<"li"> & {
+}: React.ComponentPropsWithoutRef<'li'> & {
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: NavServiceIcon;
+  placeholder?: boolean;
 }) {
+  const Icon = ICONS[icon];
+
   return (
     <li {...props} className="h-full">
       <NavigationMenuLink asChild>
@@ -72,7 +76,14 @@ function ServiceItem({
             <div className="flex items-center justify-center w-10 h-10 rounded-md bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
               <Icon className="h-5 w-5" />
             </div>
-            <div className="font-semibold text-sm">{title}</div>
+            <div className="font-semibold text-sm">
+              {title}
+              {placeholder ? (
+                <span className="ml-2 text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
+                  Preview
+                </span>
+              ) : null}
+            </div>
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
             {children}
@@ -83,10 +94,14 @@ function ServiceItem({
   );
 }
 
-export function ServicesMenu() {
-  const isMobile = useMediaQuery("(max-width: 767px)", {
+export function ServicesMenu({ services }: { services: ServicesMenuItem[] }) {
+  const isMobile = useMediaQuery('(max-width: 767px)', {
     initializeWithValue: false,
   });
+
+  if (services.length === 0) {
+    return null;
+  }
 
   return (
     <NavigationMenu viewport={isMobile}>
@@ -99,15 +114,18 @@ export function ServicesMenu() {
             <div className="p-6 w-[500px]">
               <div className="mb-4">
                 <h3 className="text-lg font-semibold mb-1">Services</h3>
-                <p className="text-sm text-muted-foreground">Access your OpenStack services</p>
+                <p className="text-sm text-muted-foreground">
+                  Access your OpenStack services
+                </p>
               </div>
               <ul className="grid grid-cols-2 gap-3">
                 {services.map((service) => (
                   <ServiceItem
-                    key={service.title}
+                    key={service.id}
                     title={service.title}
                     href={service.href}
                     icon={service.icon}
+                    placeholder={service.placeholder}
                   >
                     {service.description}
                   </ServiceItem>
