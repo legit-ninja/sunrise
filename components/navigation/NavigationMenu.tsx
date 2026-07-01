@@ -15,6 +15,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { getRegions, getProjects } from "@/lib/keystone/queries";
 import { getSession } from "@/lib/session";
 import { getUserInfo } from "@/lib/openstack/keystone-actions";
+import { getNavServices } from "@/lib/openstack/nav-services";
 
 export async function NavigationMenu() {
   // Get session to read selected region/project IDs
@@ -35,6 +36,14 @@ export async function NavigationMenu() {
   // Fetch user info from session token
   const userInfo = await getUserInfo();
 
+  const catalogToken =
+    session.keystoneProjectToken ?? session.keystone_unscoped_token;
+  const navRegionId = session.regionId ?? selectedRegion?.id;
+  const navServices =
+    catalogToken && navRegionId
+      ? await getNavServices(navRegionId, catalogToken)
+      : [];
+
   return (
     <div className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="flex items-center justify-between w-full px-6 h-14">
@@ -53,7 +62,7 @@ export async function NavigationMenu() {
 
           <div className="h-6 w-px bg-border" />
 
-          <ServicesMenu />
+          <ServicesMenu services={navServices} />
         </div>
 
         {/* Right side: Feedback + Region + Project + User */}

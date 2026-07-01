@@ -1,31 +1,41 @@
 import { redirect } from 'next/navigation';
 
-/**
- * Get service endpoint URL from OpenStack service catalog
- * Fetches from Keystone and returns the direct OpenStack endpoint URL
- */
-export async function getServiceEndpoint(
+import type { CatalogEndpoint, CatalogService, ServiceCatalog } from '@/types/openstack/catalog';
+
+function endpointMatchesRegion(endpoint: CatalogEndpoint, regionId: string): boolean {
+  return (
+    endpoint.region === regionId ||
+    endpoint.region_id === regionId
+  );
+}
+
+export function serviceHasPublicEndpointInRegion(
+  service: CatalogService,
   regionId: string,
-  serviceType: string,
-  serviceName: string,
-  token: string
-): Promise<string | null> {
-  // Fetch from catalog and return direct OpenStack URL
+): boolean {
+  return service.endpoints.some(
+    (endpoint) =>
+      endpoint.interface === 'public' && endpointMatchesRegion(endpoint, regionId),
+  );
+}
+
+async function fetchCatalogResponse(token: string): Promise<Response> {
+  return fetch(`${process.env.KEYSTONE_API}/v3/auth/catalog`, {
+    headers: {
+      'X-Auth-Token': token,
+    },
+    cache: 'no-store',
+  });
+}
+
+export async function fetchServiceCatalog(
+  token: string,
+): Promise<CatalogService[] | null> {
   let catalogResponse: Response;
   try {
-    // Get service catalog
-    catalogResponse = await fetch(`${process.env.KEYSTONE_API}/v3/auth/catalog`, {
-      headers: {
-        'X-Auth-Token': token,
-      },
-      cache: 'no-store',
-    });
+    catalogResponse = await fetchCatalogResponse(token);
   } catch (error) {
-    console.error('[catalog] failed to fetch service catalog', {
-      error,
-      serviceName,
-      serviceType,
-    });
+    console.error('[catalog] failed to fetch service catalog', { error });
     return null;
   }
 
@@ -37,54 +47,50 @@ export async function getServiceEndpoint(
   }
 
   try {
-    const catalogData = await catalogResponse.json();
-    const serviceEntry = catalogData.catalog.find(
-      (item: any) => item.type === serviceType || item.name === serviceName
-    );
-
-    if (!serviceEntry) {
-      console.error('[catalog] service not found', {
-        serviceName,
-        serviceType,
-      });
-      // TODO(diagnostic): remove once s3 catalog lookup is verified.
-      console.error(
-        '[catalog] available services:',
-        (catalogData.catalog ?? []).map((s: any) => ({ type: s.type, name: s.name }))
-      );
-      return null;
-    }
-
-    const endpointEntry = serviceEntry.endpoints.find(
-      (ep: any) => ep.interface === 'public' && ep.region === regionId
-    );
-
-    if (!endpointEntry) {
-      console.error('[catalog] public endpoint not found', {
-        regionId,
-        serviceName,
-        serviceType,
-      });
-      // TODO(diagnostic): remove once s3 catalog lookup is verified.
-      console.error(
-        '[catalog] endpoints for service:',
-        (serviceEntry.endpoints ?? []).map((ep: any) => ({
-          interface: ep.interface,
-          region: ep.region,
-          region_id: ep.region_id,
-          url: ep.url,
-        }))
-      );
-      return null;
-    }
-
-    return endpointEntry.url;
+    const catalogData = (await catalogResponse.json()) as ServiceCatalog;
+    return catalogData.catalog ?? [];
   } catch (error) {
-    console.error('[catalog] failed to parse service catalog', {
-      error,
+    console.error('[catalog] failed to parse service catalog', { error });
+    return null;
+  }
+}
+
+/**
+ * Get service endpoint URL from OpenStack service catalog.
+ */
+export async function getServiceEndpoint(
+  regionId: string,
+  serviceType: string,
+  serviceName: string,
+  token: string,
+): Promise<string | null> {
+  const catalog = await fetchServiceCatalog(token);
+  if (!catalog) {
+    return null;
+  }
+
+  const serviceEntry = catalog.find(
+    (item) => item.type === serviceType || item.name === serviceName,
+  );
+
+  if (!serviceEntry) {
+    console.error('[catalog] service not found', { serviceName, serviceType });
+    return null;
+  }
+
+  const endpointEntry = serviceEntry.endpoints.find(
+    (endpoint) =>
+      endpoint.interface === 'public' && endpointMatchesRegion(endpoint, regionId),
+  );
+
+  if (!endpointEntry) {
+    console.error('[catalog] public endpoint not found', {
+      regionId,
       serviceName,
       serviceType,
     });
     return null;
   }
+
+  return endpointEntry.url;
 }
