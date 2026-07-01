@@ -6,6 +6,28 @@ import type { Project, Region } from '@/types/openstack/keystone';
 
 const KEYSTONE_API = process.env.KEYSTONE_API;
 
+function keystoneApiBase(): string {
+  if (!KEYSTONE_API) throw new Error('KEYSTONE_API not set');
+  return KEYSTONE_API.replace(/\/$/, '');
+}
+
+/**
+ * Keystone WebSSO entrypoint. Keystone drives the Keycloak OIDC flow and
+ * POSTs the resulting token back to Sunrise at `/auth/websso/`.
+ *
+ * Must match `trusted_dashboard` in Keystone federation config (includes trailing slash).
+ */
+export function buildKeystoneWebssoLoginUrl(idProvider: string): string {
+  const dashboardUrl = process.env.DASHBOARD_URL ?? '';
+  const protocol =
+    process.env.KEYSTONE_FEDERATION_IDENTITY_PROVIDER_PROTOCOL ?? 'openid';
+  // Horizon passes origin unencoded with a trailing slash; Keystone matches exactly.
+  const origin = `${dashboardUrl.replace(/\/$/, '')}/auth/websso/`;
+  return `${keystoneApiBase()}/v3/auth/OS-FEDERATION/identity_providers/${encodeURIComponent(
+    idProvider,
+  )}/protocols/${encodeURIComponent(protocol)}/websso?origin=${origin}`;
+}
+
 /**
  * Federate an OIDC id/access token into Keystone via its bearer-token
  * federation endpoint. Returns the unscoped Keystone token.

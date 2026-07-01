@@ -25,8 +25,17 @@ export type SunriseOidcConfig = {
   clientId: string;
   clientSecret: string;
   redirectUri: string;
-  rgwAudience: string;
+  rgwAudience?: string;
 };
+
+/** True when Sunrise acts as OIDC RP (unified login + optional S3 token exchange). */
+export function isSunriseOidcEnabled(): boolean {
+  return Boolean(
+    process.env.KEYCLOAK_ISSUER &&
+      process.env.KEYCLOAK_SERVER_CLIENT_ID &&
+      process.env.KEYCLOAK_SERVER_CLIENT_SECRET,
+  );
+}
 
 export function getSunriseOidcConfig(): SunriseOidcConfig {
   const issuer = process.env.KEYCLOAK_ISSUER;
@@ -38,7 +47,6 @@ export function getSunriseOidcConfig(): SunriseOidcConfig {
   if (!clientId) throw new Error('KEYCLOAK_SERVER_CLIENT_ID not set');
   if (!clientSecret) throw new Error('KEYCLOAK_SERVER_CLIENT_SECRET not set');
   if (!dashboardUrl) throw new Error('DASHBOARD_URL not set');
-  if (!rgwAudience) throw new Error('KEYCLOAK_S3_CLIENT_ID not set');
   return {
     issuer,
     clientId,
@@ -177,6 +185,9 @@ export async function tokenExchangeForRgw(
 ): Promise<TokenExchangeResult> {
   const { token_endpoint } = await discoverOidc();
   const { clientId, clientSecret, rgwAudience } = getSunriseOidcConfig();
+  if (!rgwAudience) {
+    throw new Error('KEYCLOAK_S3_CLIENT_ID not set');
+  }
   const body = new URLSearchParams({
     grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
     subject_token: subjectAccessToken,

@@ -1,16 +1,14 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { assertIdentityProvidersConfigured } from "@/lib/identity-providers";
+import { buildKeystoneWebssoLoginUrl } from "@/lib/keystone/login";
+import { isSunriseOidcEnabled } from "@/lib/oidc/sunrise";
 
-const idProviders: string[] | undefined =
-  process.env.KEYSTONE_FEDERATION_IDENTITY_PROVIDERS?.split(",");
-
-if (!idProviders || (idProviders.length == 1 && idProviders[0] == "")) {
-  throw new Error("No Identity Providers configured");
-}
+const idProviders = assertIdentityProvidersConfigured();
 
 export const LoginFormSchema = z.object({
-  idProvider: z.string().refine((value) => idProviders.includes(value), {
-    message: "Invalid Identity Provider",
+  idProvider: z.string().trim().refine((value) => idProviders.includes(value), {
+    message: `Invalid Identity Provider. Allowed: ${idProviders.join(", ")}`,
   }),
 });
 
@@ -24,9 +22,13 @@ export type LoginFormState =
   | undefined;
 
 export const redirectToIdentityProvider = (idProvider: string) => {
-  redirect(
-    (process.env.DASHBOARD_URL ?? '') +
-      '/auth/oidc/login?idp=' +
-      encodeURIComponent(idProvider),
-  );
+  if (isSunriseOidcEnabled()) {
+    redirect(
+      (process.env.DASHBOARD_URL ?? '') +
+        '/auth/oidc/login?idp=' +
+        encodeURIComponent(idProvider),
+    );
+  }
+
+  redirect(buildKeystoneWebssoLoginUrl(idProvider));
 };

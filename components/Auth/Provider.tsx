@@ -1,5 +1,6 @@
 import Login from "@/components/Auth/Login";
 import { getKeystoneSessionState } from "@/lib/keystone/session";
+import { getIdentityProviders } from "@/lib/identity-providers";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
@@ -28,13 +29,14 @@ function SessionUnavailable({ reason }: { reason: string }) {
 
 export default async function Provider({ children }: any) {
   const session = await getSession();
+  const identityProviders = getIdentityProviders();
   if (!session.keystone_unscoped_token) {
-    return <Login />;
+    return <Login identityProviders={identityProviders} />;
   }
 
   const sessionState = await getKeystoneSessionState(session);
   if (sessionState.status === "missing") {
-    return <Login />;
+    return <Login identityProviders={identityProviders} />;
   }
 
   if (sessionState.status === "invalid") {

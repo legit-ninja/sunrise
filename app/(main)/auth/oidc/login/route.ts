@@ -1,15 +1,22 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
+import { getIdentityProviders } from '@/lib/identity-providers';
 import {
   buildAuthorizeUrl,
   generatePkce,
   generateState,
+  isSunriseOidcEnabled,
 } from '@/lib/oidc/sunrise';
 
-const idProvidersEnv = process.env.KEYSTONE_FEDERATION_IDENTITY_PROVIDERS;
-const idProviders = idProvidersEnv ? idProvidersEnv.split(',') : [];
+const idProviders = getIdentityProviders();
 
 export async function GET(request: Request) {
+  if (!isSunriseOidcEnabled()) {
+    return new NextResponse(
+      'Sunrise OIDC login is not configured. Use Keystone WebSSO or set KEYCLOAK_ISSUER, KEYCLOAK_SERVER_CLIENT_ID, and KEYCLOAK_SERVER_CLIENT_SECRET.',
+      { status: 503 },
+    );
+  }
   const url = new URL(request.url);
   const idp = url.searchParams.get('idp');
   if (!idp || !idProviders.includes(idp)) {

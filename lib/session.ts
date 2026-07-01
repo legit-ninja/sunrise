@@ -75,6 +75,16 @@ export function clearS3Credentials(session: SunriseSession) {
 }
 
 // Setup the config for your session and cookie
+const sessionOptions = {
+  cookieName: "sunrise",
+  password: process.env.SESSION_SECRET as string,
+  cookieOptions: {
+    // Keystone POSTs the WebSSO token cross-site from identity.* to localhost.
+    secure: true,
+    sameSite: "none" as const,
+  },
+};
+
 export async function getSession(): Promise<IronSession<SunriseSession>> {
-  return await getIronSession<SunriseSession>(await cookies(), { cookieName: "sunrise", password: process.env.SESSION_SECRET as string });
+  return await getIronSession<SunriseSession>(await cookies(), sessionOptions);
 }

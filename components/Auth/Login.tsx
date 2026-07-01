@@ -4,9 +4,14 @@ import { useFormStatus } from "react-dom";
 import { login } from "@/app/(main)/auth/login/action";
 import Image from "next/image";
 
-export default function Login() {
+export default function Login({
+  identityProviders,
+}: {
+  identityProviders: string[];
+}) {
   const [state, action] = useActionState(login, undefined);
   const { pending } = useFormStatus();
+  const providerHint = identityProviders.join(", ");
 
   return (
     <>
@@ -29,14 +34,33 @@ export default function Login() {
                   <label htmlFor="id_provider" className="sr-only">
                     Identity Provider ID
                   </label>
-                  <input
-                    id="id_provider"
-                    name="id_provider"
-                    type="text"
-                    required
-                    className="text-sm text-center relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-100 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-2xl sm:leading-6"
-                    placeholder="Identity Provider ID"
-                  />
+                  {identityProviders.length > 1 ? (
+                    <select
+                      id="id_provider"
+                      name="id_provider"
+                      required
+                      className="text-sm text-center relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-100 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-2xl sm:leading-6"
+                      defaultValue={identityProviders[0]}
+                    >
+                      {identityProviders.map((idp) => (
+                        <option key={idp} value={idp}>
+                          {idp}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      id="id_provider"
+                      name="id_provider"
+                      type="text"
+                      required
+                      defaultValue={identityProviders[0] ?? ""}
+                      className="text-sm text-center relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-100 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-2xl sm:leading-6"
+                      placeholder={
+                        providerHint || "Identity Provider ID (Keystone domain)"
+                      }
+                    />
+                  )}
                 </div>
                 {state?.errors?.idProvider && (
                   <p className="p-2 text-center bg-gray-100 text-red-500">
