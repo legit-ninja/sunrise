@@ -752,8 +752,8 @@ export function ObjectsClient({
       />
 
       {data.accessDenied && (
-        <div className="rounded-md border border-yellow-500/50 bg-yellow-500/10 p-3 flex gap-2 text-sm">
-          <AlertTriangle className="h-4 w-4 text-yellow-600 shrink-0 mt-0.5" />
+        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 flex gap-2 text-sm text-foreground">
+          <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-300 shrink-0 mt-0.5" aria-hidden="true" />
           <div>
             <div className="font-medium">Access denied</div>
             <div className="text-muted-foreground">
@@ -855,7 +855,7 @@ export function ObjectsClient({
             )}
           </div>
           {removeError && (
-            <div className="rounded-md border border-red-500/50 bg-red-500/10 p-3 text-sm text-destructive">
+            <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive" role="alert">
               {removeError}
             </div>
           )}
@@ -905,11 +905,11 @@ export function ObjectsClient({
               </div>
             ))}
           {policyState.status === 'error' && (
-            <div className="rounded-md border border-red-500/50 bg-red-500/10 p-3 text-sm">
+            <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-foreground" role="alert">
               <div className="font-medium">
                 {policyState.accessDenied ? 'Access denied' : 'Policy check failed'}
               </div>
-              <div className="font-mono text-xs break-all mt-1">
+              <div className="font-mono text-xs break-all mt-1 text-muted-foreground">
                 {policyState.error}
               </div>
             </div>

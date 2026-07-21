@@ -131,7 +131,7 @@ export function DirectClient({ bucket }: DirectClientProps) {
 
   if (credsError) {
     return (
-      <div className="rounded-md border border-red-500/50 bg-red-500/10 p-3 text-sm">
+      <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive" role="alert">
         Failed to obtain STS credentials: {credsError}
       </div>
     );
@@ -143,7 +143,7 @@ export function DirectClient({ bucket }: DirectClientProps) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border border-blue-500/50 bg-blue-500/10 p-3 text-sm">
+      <div className="rounded-md border border-sky-500/40 bg-sky-500/10 p-3 text-sm text-foreground">
         <div className="font-medium">Direct browser mode</div>
         <div className="text-muted-foreground">
           All S3 calls below are made from your browser straight to{' '}
@@ -193,11 +193,11 @@ export function DirectClient({ bucket }: DirectClientProps) {
       </div>
 
       {listQuery.error && (
-        <div className="rounded-md border border-red-500/50 bg-red-500/10 p-3 text-sm flex gap-2">
-          <AlertTriangle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+        <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm flex gap-2 text-foreground">
+          <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" aria-hidden="true" />
           <div>
             <div className="font-medium">List failed</div>
-            <div className="font-mono text-xs break-all">
+            <div className="font-mono text-xs break-all text-muted-foreground">
               {(listQuery.error as Error).message}
             </div>
             <div className="text-muted-foreground mt-1">
@@ -267,7 +267,7 @@ export function DirectClient({ bucket }: DirectClientProps) {
         <div className="space-y-2">
           <h2 className="text-sm font-semibold">Object: {inspectKey}</h2>
           {headQuery.error && (
-            <div className="rounded-md border border-red-500/50 bg-red-500/10 p-3 text-sm font-mono break-all">
+            <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm font-mono break-all text-destructive" role="alert">
               {(headQuery.error as Error).message}
             </div>
           )}

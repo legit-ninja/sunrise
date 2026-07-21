@@ -87,8 +87,8 @@ export function BucketsClient({
       </form>
 
       {data.accessDenied && (
-        <div className="rounded-md border border-yellow-500/50 bg-yellow-500/10 p-3 flex gap-2 text-sm">
-          <AlertTriangle className="h-4 w-4 text-yellow-600 shrink-0 mt-0.5" />
+        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 flex gap-2 text-sm text-foreground">
+          <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-300 shrink-0 mt-0.5" aria-hidden="true" />
           <div>
             <div className="font-medium">Bucket listing not permitted</div>
             <div className="text-muted-foreground">

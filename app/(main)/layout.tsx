@@ -25,8 +25,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full light" suppressHydrationWarning>
-
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased h-full",

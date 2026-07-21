@@ -1,19 +1,33 @@
-export const CircularProgress = ({ value }: { value: number }) => {
+export const CircularProgress = ({
+  value,
+  "aria-label": ariaLabel,
+}: {
+  value: number;
+  "aria-label"?: string;
+}) => {
+  const clamped = Math.min(100, Math.max(0, value));
+
   return (
-    <div className="relative w-36 h-36 mx-auto">
-      <svg className="w-full h-full" viewBox="0 0 100 100">
+    <div
+      className="relative mx-auto h-36 w-36"
+      role="img"
+      aria-label={ariaLabel ?? `${Math.round(clamped)} percent`}
+    >
+      <svg className="h-full w-full" viewBox="0 0 100 100" aria-hidden="true">
         <circle
-          className="text-gray-200 stroke-current"
+          className="stroke-muted text-muted"
+          stroke="currentColor"
           strokeWidth="10"
           cx="50"
           cy="50"
           r="40"
           fill="transparent"
-        ></circle>
+        />
         <circle
-          className="text-primary-500 stroke-current"
+          className="stroke-primary text-primary"
+          stroke="currentColor"
           style={{
-            transition: "stroke-dashoffset 0.35s",
+            transition: "stroke-dashoffset 0.2s ease-out",
             transform: "rotate(-90deg)",
             transformOrigin: "50% 50%",
           }}
@@ -24,17 +38,16 @@ export const CircularProgress = ({ value }: { value: number }) => {
           r="40"
           fill="transparent"
           strokeDasharray="251.2"
-          strokeDashoffset={"calc(251.2 - (251.2 * " + value + ") / 100)"}
-        ></circle>
-
+          strokeDashoffset={251.2 - (251.2 * clamped) / 100}
+        />
         <text
           x="50"
           y="50"
           textAnchor="middle"
-          alignmentBaseline="middle"
-          className="text-xs"
+          dominantBaseline="middle"
+          className="fill-foreground text-xs font-semibold"
         >
-          {value}%
+          {Math.round(clamped)}%
         </text>
       </svg>
     </div>
