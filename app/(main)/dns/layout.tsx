@@ -6,19 +6,6 @@ const dnsSidebarSections = [
       { name: "Overview", href: "/dns", icon: "Gauge" },
     ],
   },
-  {
-    title: "DNS",
-    items: [
-      { name: "Zones", href: "/dns/zones", icon: "Globe" },
-      { name: "Record Sets", href: "/dns/record-sets", icon: "FileText" },
-    ],
-  },
-  {
-    title: "Settings",
-    items: [
-      { name: "Zone Transfers", href: "/dns/zone-transfers", icon: "Settings" },
-    ],
-  },
 ];
 
 export default function DNSLayout({

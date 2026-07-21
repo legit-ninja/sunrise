@@ -10,13 +10,7 @@ const kubernetesSidebarSections = [
     title: "Clusters",
     items: [
       { name: "Clusters", href: "/kubernetes/clusters", icon: "Container" },
-      { name: "Cluster Templates", href: "/kubernetes/templates", icon: "Settings" },
-    ],
-  },
-  {
-    title: "Network",
-    items: [
-      { name: "Load Balancers", href: "/kubernetes/load-balancers", icon: "Network" },
+      { name: "Cluster templates", href: "/kubernetes/templates", icon: "Settings" },
     ],
   },
 ];

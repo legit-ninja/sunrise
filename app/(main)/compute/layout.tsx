@@ -5,23 +5,23 @@ const computeSidebarSections = [
     title: "Instances",
     items: [
       { name: "Instances", href: "/compute/instances", icon: "Server" },
-      { name: "Instance Flavors", href: "/compute/instance-flavors", icon: "Cpu" },
+      { name: "Instance flavors", href: "/compute/instance-flavors", icon: "Cpu" },
       { name: "Images", href: "/compute/images", icon: "Image" },
+      { name: "Image builds", href: "/compute/image-builds", icon: "Hammer" },
     ],
   },
   {
-    title: "Block Storage",
+    title: "Block storage",
     items: [
       { name: "Volumes", href: "/compute/volumes", icon: "HardDrive" },
       { name: "Snapshots", href: "/compute/snapshots", icon: "Camera" },
     ],
   },
   {
-    title: "Network & Security",
+    title: "Network & security",
     items: [
       { name: "Networks", href: "/compute/networks", icon: "Network" },
-      { name: "Security Groups", href: "/compute/security-groups", icon: "Shield" },
-      { name: "Key Pairs", href: "/compute/key-pairs", icon: "Key" },
+      { name: "Key pairs", href: "/compute/key-pairs", icon: "Key" },
     ],
   },
 ];

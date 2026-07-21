@@ -6,19 +6,6 @@ const orchestrationSidebarSections = [
       { name: "Overview", href: "/orchestration", icon: "Gauge" },
     ],
   },
-  {
-    title: "Stacks",
-    items: [
-      { name: "Stacks", href: "/orchestration/stacks", icon: "Layers" },
-      { name: "Templates", href: "/orchestration/templates", icon: "FileText" },
-    ],
-  },
-  {
-    title: "Resources",
-    items: [
-      { name: "Resource Types", href: "/orchestration/resource-types", icon: "Settings" },
-    ],
-  },
 ];
 
 export default function OrchestrationLayout({
