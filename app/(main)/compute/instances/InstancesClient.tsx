@@ -355,6 +355,7 @@ export function InstancesClient({ regionId, projectId }: InstancesClientProps) {
       columns={columns}
       resourceName="instance"
       emptyIcon={ServerIcon}
+      emptyDescription="Launch an instance from Compute when you are ready to create one."
     />
   );
 }

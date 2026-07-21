@@ -10,6 +10,8 @@ import { statuses as volumeStatusDescriptions } from "@/types/openstack/cinder";
 import { DetailField, DetailSection } from "@/components/Instance/DetailFields";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { ResourceDeleteDangerZone } from "@/components/ResourceDeleteDangerZone";
+import { deleteVolumeAction } from "@/lib/openstack/cinder-actions";
 
 interface VolumeDetailClientProps {
   volumeId: string;
@@ -294,6 +296,14 @@ export function VolumeDetailClient({
           )}
         </DetailSection>
       </div>
+
+      <ResourceDeleteDangerZone
+        resourceKind="volume"
+        resourceName={volume.name || volume.id}
+        consequence="All data on this volume will be lost. Detach it from instances first if required."
+        redirectTo="/compute/volumes"
+        onDelete={() => deleteVolumeAction(volumeId, regionId)}
+      />
     </div>
   );
 }

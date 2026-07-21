@@ -47,9 +47,10 @@ async function resolveRegionId(regionId?: string) {
   return session.regionId;
 }
 
-async function magnumGet<T>(
+async function magnumRequest<T>(
   path: string,
   regionId?: string,
+  method: 'GET' | 'DELETE' = 'GET',
 ): Promise<T | null> {
   const resolvedRegionId = await resolveRegionId(regionId);
 
@@ -59,7 +60,15 @@ async function magnumGet<T>(
     serviceName: SERVICE_NAME,
     apiVersion: API_VERSION,
     path,
+    method,
   });
+}
+
+async function magnumGet<T>(
+  path: string,
+  regionId?: string,
+): Promise<T | null> {
+  return magnumRequest<T>(path, regionId, 'GET');
 }
 
 function isKubernetesCOE(coe: string | undefined) {
@@ -203,3 +212,11 @@ export async function getClusterNodeGroupAction(
 
   return nodegroup;
 }
+
+export async function deleteClusterAction(
+  clusterId: string,
+  regionId?: string,
+): Promise<void> {
+  await magnumRequest(`/clusters/${clusterId}`, regionId, 'DELETE');
+}
+

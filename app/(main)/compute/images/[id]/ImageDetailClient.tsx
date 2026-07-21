@@ -8,6 +8,8 @@ import type { Image } from "@/types/openstack";
 import { DetailField, DetailSection } from "@/components/Instance/DetailFields";
 import { Badge } from "@/components/ui/badge";
 import { imageOperatingSystem } from "@/lib/openstack/image-metadata";
+import { ResourceDeleteDangerZone } from "@/components/ResourceDeleteDangerZone";
+import { deleteImageAction } from "@/lib/openstack/glance-actions";
 
 interface ImageDetailClientProps {
   imageId: string;
@@ -155,6 +157,14 @@ export function ImageDetailClient({
           )}
         </DetailSection>
       </div>
+
+      <ResourceDeleteDangerZone
+        resourceKind="image"
+        resourceName={image.name || image.id}
+        consequence="Instances that use this image are not deleted, but you will not be able to launch new ones from it."
+        redirectTo="/compute/images"
+        onDelete={() => deleteImageAction(imageId, regionId)}
+      />
     </div>
   );
 }

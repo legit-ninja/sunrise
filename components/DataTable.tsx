@@ -52,6 +52,8 @@ interface DataTableProps<TData, TValue> {
   refetch?: () => void
   resourceName: string
   emptyIcon: React.ComponentType<{ className?: string }>
+  emptyDescription?: string
+  emptyAction?: React.ReactNode
   rowActions?: DataTableRowAction<TData>[]
   onPageRowsChange?: (rows: TData[]) => void
 }
@@ -71,6 +73,8 @@ export function DataTable<TData, TValue>({
   refetch,
   resourceName,
   emptyIcon,
+  emptyDescription,
+  emptyAction,
   rowActions = [],
   onPageRowsChange,
 }: DataTableProps<TData, TValue>) {
@@ -259,6 +263,8 @@ export function DataTable<TData, TValue>({
               <TableEmpty
                 columns={columns.length + 1}
                 message={resourceName ? `No ${pluralize(resourceName)} found.` : "No results."}
+                description={emptyDescription}
+                action={emptyAction}
                 icon={emptyIcon}
               />
             )}

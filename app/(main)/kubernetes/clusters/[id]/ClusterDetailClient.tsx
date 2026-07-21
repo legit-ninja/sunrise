@@ -43,6 +43,8 @@ import {
   clusterQueryOptions,
   clusterTemplatesQueryOptions,
 } from "@/hooks/queries/useMagnum";
+import { deleteClusterAction } from "@/lib/openstack/magnum";
+import { ResourceDeleteDangerZone } from "@/components/ResourceDeleteDangerZone";
 import type {
   MagnumCluster,
   MagnumClusterNodeGroup,
@@ -1695,6 +1697,14 @@ export function ClusterDetailClient({
           label when available.
         </span>
       </div>
+
+      <ResourceDeleteDangerZone
+        resourceKind="cluster"
+        resourceName={cluster.name || cluster.uuid}
+        consequence="All cluster nodes and Magnum-managed resources will be destroyed."
+        redirectTo="/kubernetes/clusters"
+        onDelete={() => deleteClusterAction(clusterId, regionId)}
+      />
     </div>
   );
 }

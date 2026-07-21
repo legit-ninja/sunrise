@@ -102,6 +102,22 @@ export async function deleteServerAction(
   });
 }
 
+export async function deleteKeypairAction(
+  name: string,
+  regionId?: string,
+): Promise<void> {
+  const resolvedRegion = await resolveRegionId(regionId);
+
+  await openstack({
+    regionId: resolvedRegion,
+    serviceType: SERVICE_TYPE,
+    serviceName: SERVICE_NAME,
+    path: `/os-keypairs/${encodeURIComponent(name)}`,
+    method: 'DELETE',
+    apiVersion: API_VERSION,
+  });
+}
+
 export async function rebootServerAction(
   id: string,
   type: 'SOFT' | 'HARD',

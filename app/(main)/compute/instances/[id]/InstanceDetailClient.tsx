@@ -11,6 +11,8 @@ import { Interfaces } from "@/components/Instance/Interfaces";
 import { ActionLog } from "@/components/Instance/ActionLog";
 import { Console } from "@/components/Instance/Console";
 import { ConsoleLog } from "@/components/Instance/ConsoleLog";
+import { ResourceDeleteDangerZone } from "@/components/ResourceDeleteDangerZone";
+import { deleteServerAction } from "@/lib/openstack/nova-actions";
 import { serverQueryOptions, serverInterfacesQueryOptions } from "@/hooks/queries/useServers";
 import { portQueryOptions, networkQueryOptions } from "@/hooks/queries/useNetworks";
 import { useEffect, useMemo, useState } from "react";
@@ -148,6 +150,13 @@ export function InstanceDetailClient({
           <ActionLog serverId={serverId} regionId={regionId} projectId={projectId} />
         </TabsContent>
       </Tabs>
+      <ResourceDeleteDangerZone
+        resourceKind="instance"
+        resourceName={String(server.name || server.id)}
+        consequence="Attached volumes are not deleted. This cannot be undone."
+        redirectTo="/compute/instances"
+        onDelete={() => deleteServerAction(serverId, {}, regionId)}
+      />
     </div>
   );
 }
