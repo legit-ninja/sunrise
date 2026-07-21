@@ -5,40 +5,33 @@ import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 
 import { CircularProgress } from "@/components/ui/circular-progress";
 
 export default function ProgressCard({ label, used, limit, units }) {
+  const unlimited = limit < 0;
+  const safeLimit = unlimited ? 1 : limit > 0 ? limit : 1;
+  const percent = unlimited ? 0 : (used / safeLimit) * 100;
+  const unitSuffix = units ? units : "";
+  const usageLabel = unlimited
+    ? `Used ${used}${unitSuffix} (unlimited)`
+    : `Used ${used}${unitSuffix} of ${limit}${unitSuffix}`;
+
   return (
-    <Card className="w-[240px] h-[260px] border-none">
-      <CardContent className="justify-center items-center pb-0">
+    <Card className="h-[260px] w-[240px] border-border">
+      <CardContent className="items-center justify-center pb-0">
         <CircularProgress
-          classNames={{
-            svg: "w-36 h-36 drop-shadow-md",
-            indicator: "stroke-black",
-            track: "stroke-black/10",
-            value: "text-3xl font-semibold text-white",
-          }}
-          value={(used / limit) * 100}
-          strokeWidth={4}
-          showValueLabel={true}
+          value={percent}
           aria-label={label}
         />
       </CardContent>
-      <CardFooter className="justify-center items-center pt-0">
+      <CardFooter className="items-center justify-center pt-0">
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
-            <h3 className="font-bold p-2">{label}</h3>
-            <Badge variant="outline">
-              Used {used}
-              {units ? units : ""} of {limit}
-              {units ? units : ""}
-            </Badge>
+            <h3 className="p-2 font-bold text-foreground">{label}</h3>
+            <Badge variant="outline">{usageLabel}</Badge>
           </div>
         </div>
       </CardFooter>
