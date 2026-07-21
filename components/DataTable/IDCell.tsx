@@ -61,12 +61,13 @@ export function IDCell({ value, isSelected, linkPath }: IDCellProps) {
         variant="ghost"
         size="icon"
         className="h-6 w-6 opacity-0 group-hover:opacity-100 group-hover/id:opacity-0 transition-opacity duration-200 shrink-0 cursor-pointer"
+        aria-label={copied ? "Copied ID" : "Copy ID"}
         onClick={handleCopy}
       >
         {copied ? (
-          <Check className="h-3 w-3 text-green-500" />
+          <Check className="h-3 w-3 text-green-500" aria-hidden="true" />
         ) : (
-          <Copy className="h-3 w-3" />
+          <Copy className="h-3 w-3" aria-hidden="true" />
         )}
       </Button>
     </div>

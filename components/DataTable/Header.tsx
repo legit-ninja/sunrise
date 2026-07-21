@@ -1,17 +1,23 @@
 import pluralize from "pluralize";
 import { ReactNode } from "react";
-import { titleCase } from "title-case";
 
 interface DataTableHeaderProps {
   resourceName: string;
   actions: ReactNode;
 }
 
+function toSentenceCase(value: string): string {
+  if (!value) return value;
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 export function DataTableHeader({ resourceName, actions }: DataTableHeaderProps) {
-  return <div className="flex items-center justify-between mb-4">
-    <h1 className="text-2xl font-semibold">
-      {titleCase(pluralize(resourceName))}
-    </h1>
-    {actions}
-  </div>
+  return (
+    <div className="mb-4 flex items-center justify-between">
+      <h1 className="text-3xl font-bold">
+        {toSentenceCase(pluralize(resourceName))}
+      </h1>
+      {actions}
+    </div>
+  );
 }

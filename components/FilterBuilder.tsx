@@ -490,9 +490,10 @@ export function FilterBuilder<TData>({
             variant="ghost"
             size="icon"
             className="h-4 w-4 p-0 hover:bg-transparent"
+            aria-label="Remove filter"
             onClick={() => removeFilter(filter.id)}
           >
-            <X className="h-3 w-3" />
+            <X className="h-3 w-3" aria-hidden="true" />
           </Button>
         </Badge>
       ))}
